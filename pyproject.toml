@@ -1,0 +1,10 @@
+[project]
+name = "notetaking"
+version = "0.1.0"
+description = "A note taking utility that will sync notes to a DuckDB Database backed by GitHub."
+readme = "README.md"
+requires-python = ">=3.12.7"
+dependencies = [
+    "duckdb>=1.2.1",
+    "google-genai>=1.5.0",
+]
