@@ -1,3 +1,4 @@
+import os
 import subprocess
 from pathlib import Path
 from typing import Optional, List, Union
@@ -70,7 +71,7 @@ def sync_database_to_github(db_path: Path, note_title: str) -> tuple[bool, str]:
             
     except subprocess.CalledProcessError as e:
         os.chdir(original_dir)  # Make sure we restore the directory even if an exception occurs
-        return False, f"Git operation failed: {str(e)}"import os
+        return False, f"Git operation failed: {str(e)}"
 
 def get_git_repo_root() -> Optional[Path]:
     """
