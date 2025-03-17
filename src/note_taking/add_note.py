@@ -1,8 +1,8 @@
 import click
-import random
 from datetime import datetime, timedelta
 from src.note_taking.embed_content import get_embedding
 from src.note_taking.notes_database import NotesDatabase
+from src.note_taking.git_utils import check_if_behind_remote, pull_latest_changes, sync_database_to_github
 
 @click.command(help="""
 This is a simple note-taking tool that stores text notes in databases. Each note has a title, 
@@ -15,6 +15,19 @@ reminders, or any text content you want to store in a structured way for later r
 @click.option("--tag", help="Tag for the note.")
 def add_note(title: str, content: str, tag: str | None):
     """Add a new note to the database."""
+    # First, check if we're behind the remote repository
+    click.echo("Checking Git repository status...")
+    is_behind, message = check_if_behind_remote()
+    
+    if is_behind:
+        click.echo(f"Error: {message}", err=True)
+        click.echo("Please run 'git pull' to update your local repository before adding a note.")
+        click.echo("This is required to avoid database conflicts.")
+        return
+    
+    # If not behind, proceed to add the note
+    click.echo("Git repository is up to date.")
+    
     # Create an embedding.
     embedding = get_embedding(content)
 
@@ -28,6 +41,27 @@ def add_note(title: str, content: str, tag: str | None):
 
         # Display database statistics
         display_database_stats(db)
+        
+        # Sync with GitHub
+        db_path = db.get_db_path()
+        click.echo("\n--- GitHub Synchronization ---")
+        
+        success, message = sync_database_to_github(db_path, title)
+        if success:
+            click.echo("Database successfully synced with GitHub")
+            click.echo(f"✓ Committed with message: 'Add note: {title}'")
+            click.echo("✓ Pushed changes to GitHub")
+        else:
+            click.echo(f"GitHub sync: {message}", err=True)
+            if message == "No changes to commit":
+                click.echo("Note has been added to the database but no Git changes were needed.")
+            else:
+                click.echo("Possible issues:")
+                click.echo("  - Not in a Git repository")
+                click.echo("  - Database is outside the Git repository")
+                click.echo("  - Git remote is not configured")
+                click.echo("  - Authentication issues with remote repository")
+            
     except Exception as e:
         click.echo(f"Error adding note: {str(e)}", err=True)
     finally:
@@ -72,5 +106,4 @@ def display_database_stats(db: NotesDatabase):
 
 if __name__ == "__main__":
     add_note()
-
 
