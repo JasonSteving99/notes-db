@@ -2,6 +2,7 @@ import click
 from typing import Optional
 from src.note_taking.notes_database import NotesDatabase
 from src.note_taking.embed_content import get_embedding
+from src.note_taking.git_utils import check_if_behind_remote, pull_latest_changes
 
 
 @click.command(help="""
@@ -19,6 +20,19 @@ only those that are actually relevant to your needs.
 @click.option("--limit", default=10, help="Maximum number of results to return")
 @click.option("--truncate", default=True, help="Whether or not to truncate the notes to 500 chars. Truncation enabled by default.")
 def search_notes(query_text: str, tag: Optional[str] = None, limit: int = 10, truncate: bool = True):
+    # Check Git repository status first (silently)
+    is_behind, message = check_if_behind_remote()
+    
+    if is_behind:
+        click.echo("Repository is behind remote. Pulling latest changes...")
+        
+        success, pull_message = pull_latest_changes()
+        if success:
+            click.echo("✓ Successfully pulled latest changes from GitHub")
+        else:
+            click.echo(f"Error syncing with GitHub: {pull_message}", err=True)
+            click.echo("Proceeding with search using local database (may not include latest notes)")
+
     # Initialize the database with hard-coded db_name
     db = NotesDatabase(db_name="notes")
     
@@ -53,7 +67,7 @@ def search_notes(query_text: str, tag: Optional[str] = None, limit: int = 10, tr
             click.echo("\nContent:")
             preview = note['content']
             if truncate:
-                # Show a preview of the content (increased to 500 chars)
+                # Show a preview of the content (500 chars)
                 if len(note['content']) > 500:
                     preview = preview[:500] + "..."
             click.echo(f"{preview}")
