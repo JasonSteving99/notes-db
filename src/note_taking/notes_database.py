@@ -14,9 +14,9 @@ class NotesDatabase:
         os.makedirs(db_dir, exist_ok=True)
         
         # Construct full path to the database file, adding the .duckdb extension
-        db_path = str(db_dir / f"{db_name}.duckdb")
+        self.db_path = db_dir / f"{db_name}.duckdb"
         
-        self.conn = duckdb.connect(db_path)
+        self.conn = duckdb.connect(str(self.db_path))
         self._init_db()
         
     def _init_db(self) -> None:
@@ -170,4 +170,8 @@ class NotesDatabase:
     def close(self) -> None:
         """Close the database connection."""
         self.conn.close()
+
+    def get_db_path(self) -> Path:
+        """Get the absolute path to the database file."""
+        return self.db_path.absolute()
 
