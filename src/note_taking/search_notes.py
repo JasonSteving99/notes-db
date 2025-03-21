@@ -58,8 +58,8 @@ def search_notes(query_text: str, tag: Optional[str] = None, limit: int = 10, tr
             # Calculate similarity percentage (1 - distance) * 100
             similarity = (1 - note['distance']) * 100
             
-            # Format the results
-            click.echo(f"\n{i}. {note['title']} (Similarity: {similarity:.1f}%)")
+            # Format the results with note_id clearly displayed
+            click.echo(f"\n{i}. {note['title']} (ID: {note['note_id']}, Similarity: {similarity:.1f}%)")
             click.echo(f"Created: {note['created_at']}")
             if note.get('tags'):
                 click.echo(f"Tags: {note['tags']}")
@@ -82,4 +82,3 @@ def search_notes(query_text: str, tag: Optional[str] = None, limit: int = 10, tr
 
 if __name__ == "__main__":
     search_notes()
-
