@@ -12,11 +12,11 @@ committed to the database and synced with GitHub (if configured).
 Example usage:
   apply-tag-normalization --note-ids 1,2,3 --keep-tag "python" --replace-tags "py,python3"
 """)
-@click.option("--note-ids", required=True, 
+@click.option("--note-ids", required=True, type=click.STRING,
               help="Comma-separated list of note IDs to normalize tags for")
-@click.option("--keep-tag", required=True, 
+@click.option("--keep-tag", required=True, type=click.STRING,
               help="The target tag to keep and ensure all notes have")
-@click.option("--replace-tags", required=True,
+@click.option("--replace-tags", required=True, type=click.STRING,
               help="Comma-separated list of tags to remove and replace with the keep-tag")
 def apply_tag_normalization(note_ids: str, keep_tag: str, replace_tags: str):
     """Apply a specified tag normalization to standardize tags."""
