@@ -24,23 +24,25 @@ those created in the past 7 days.
 """)
 @click.option("--output-path", help="Path where the HTML file will be saved (defaults to 'blog_post.html' in the script directory)")
 @click.option("--api-key", help="Gemini API key (uses GEMINI_API_KEY env var if not provided)")
-def generate_blog_post(output_path: str | None = None, api_key: str | None = None):
+@click.option("--git-sync", type=click.BOOL, default=True, help="Whether or not to keep database synced up automatically.")
+def generate_blog_post(output_path: str | None = None, api_key: str | None = None, git_sync: bool = True):
     """Generate an interactive weekly blog post from the past week's notes."""
     # Check for API key in environment if not provided
     api_key = api_key or os.environ.get("GEMINI_API_KEY")
     
-    # Check Git repository status first
-    is_behind, message = check_if_behind_remote()
-    
-    if is_behind:
-        click.echo("Repository is behind remote. Pulling latest changes...")
+    if git_sync:
+        # Check Git repository status first
+        is_behind, message = check_if_behind_remote()
         
-        success, pull_message = pull_latest_changes()
-        if success:
-            click.echo("✓ Successfully pulled latest changes from GitHub")
-        else:
-            click.echo(f"Error syncing with GitHub: {pull_message}", err=True)
-            click.echo("Proceeding with local database (may not include latest notes)")
+        if is_behind:
+            click.echo("Repository is behind remote. Pulling latest changes...")
+            
+            success, pull_message = pull_latest_changes()
+            if success:
+                click.echo("✓ Successfully pulled latest changes from GitHub")
+            else:
+                click.echo(f"Error syncing with GitHub: {pull_message}", err=True)
+                click.echo("Proceeding with local database (may not include latest notes)")
 
     # Initialize the database
     db = NotesDatabase(db_name="notes")

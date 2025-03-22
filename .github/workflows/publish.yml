@@ -1,0 +1,54 @@
+name: Publish Weekly Notes Blog
+
+on:
+  schedule:
+    # Run every Friday at 8:15 AM
+    - cron: '15 8 * * 5'
+  # Allow manual triggering
+  workflow_dispatch:
+#   # Also run on pushes to main branch (optional, remove if not wanted)
+#   push:
+#     branches:
+#       - main
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.12'
+
+    - name: Install uv
+      uses: astral-sh/setup-uv@v5
+      
+    - name: Create site directory
+      run: mkdir -p _site
+
+    - name: Generate weekly blog post
+      run: |
+        # Generate the blog post
+        uv run -- python -m src.note_taking.generate_blog.generate_blog_post --output-path _site/index.html --api-key="${{ secrets.GEMINI_API_KEY }}"
+
+    - name: Upload artifact
+      uses: actions/upload-pages-artifact@v3
+
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
