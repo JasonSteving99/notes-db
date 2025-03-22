@@ -1,0 +1,961 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Weekly Summary - March 21, 2025</title>
+    <style>
+        :root {
+            --primary-color: #0056b3;
+            --secondary-color: #6c757d;
+            --accent-color: #ffc107;
+            --light-bg: #f8f9fa;
+            --dark-bg: #343a40;
+            --text-color: #333;
+            --light-text: #f8f9fa;
+            --border-color: #dee2e6;
+            --shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            --transition: all 0.3s ease;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: var(--light-bg);
+            color: var(--text-color);
+            line-height: 1.6;
+        }
+
+        #app {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: white;
+            box-shadow: var(--shadow);
+        }
+
+        header {
+            text-align: center;
+            padding: 20px 0;
+            border-bottom: 1px solid var(--border-color);
+            margin-bottom: 20px;
+        }
+
+        header h1 {
+            margin: 0;
+            color: var(--primary-color);
+            font-size: 2.5em;
+        }
+
+        header p {
+            color: var(--secondary-color);
+            font-size: 1.2em;
+            margin: 10px 0 0;
+        }
+
+        section {
+            margin-bottom: 30px;
+            padding: 20px;
+            border-radius: 5px;
+            background-color: white;
+            box-shadow: var(--shadow);
+        }
+
+        h2, h3 {
+            color: var(--primary-color);
+        }
+
+        h2 {
+            border-bottom: 2px solid var(--border-color);
+            padding-bottom: 10px;
+            margin-top: 0;
+        }
+
+        /* Weekly Summary Section */
+        #weekly-summary {
+            background-color: var(--light-bg);
+        }
+
+        /* Note Styles */
+        .note {
+            border: 1px solid var(--border-color);
+            margin-bottom: 15px;
+            border-radius: 5px;
+            overflow: hidden;
+            transition: var(--transition);
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+
+        .note:hover {
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            transform: translateY(-2px);
+        }
+
+        .note-header {
+            padding: 15px;
+            background-color: var(--light-bg);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .note-header h3 {
+            margin: 0;
+            font-size: 1.2em;
+            flex: 1;
+        }
+
+        .note-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.5s ease;
+            padding: 0 15px;
+        }
+
+        .note.expanded .note-content {
+            max-height: 2000px;
+            padding: 15px;
+        }
+
+        .note-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+        }
+
+        .tag {
+            padding: 3px 8px;
+            border-radius: 15px;
+            font-size: 0.8em;
+            white-space: nowrap;
+        }
+
+        .note-meta {
+            font-size: 0.85em;
+            color: var(--secondary-color);
+            margin-top: 5px;
+        }
+
+        /* Timeline Styles */
+        #timeline-chart {
+            height: 200px;
+            margin-top: 20px;
+        }
+
+        /* Tags Chart */
+        #tags-chart {
+            height: 300px;
+            margin-top: 20px;
+        }
+
+        /* Daily Summary Styles */
+        .day-summary {
+            margin-bottom: 20px;
+            padding: 15px;
+            border-radius: 5px;
+            background-color: var(--light-bg);
+        }
+
+        .day-summary h3 {
+            margin-top: 0;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 5px;
+        }
+
+        /* Control Buttons */
+        .controls {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        button {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        button:hover {
+            background-color: #004494;
+        }
+
+        /* Markdown Styles */
+        .markdown-body {
+            color: var(--text-color);
+        }
+
+        .markdown-body h1 {
+            font-size: 1.8em;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 0.3em;
+        }
+
+        .markdown-body h2 {
+            font-size: 1.5em;
+        }
+
+        .markdown-body h3 {
+            font-size: 1.2em;
+        }
+
+        .markdown-body code {
+            background-color: #f6f8fa;
+            padding: 2px 5px;
+            border-radius: 3px;
+            font-family: monospace;
+        }
+
+        .markdown-body pre {
+            background-color: #f6f8fa;
+            padding: 16px;
+            border-radius: 6px;
+            overflow-x: auto;
+        }
+
+        .markdown-body blockquote {
+            border-left: 4px solid var(--border-color);
+            padding-left: 16px;
+            color: var(--secondary-color);
+            margin-left: 0;
+        }
+
+        /* Theme Badge */
+        .theme-badge {
+            display: inline-block;
+            padding: 5px 10px;
+            margin: 5px;
+            border-radius: 15px;
+            background-color: var(--light-bg);
+            color: var(--text-color);
+            font-size: 0.9em;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .theme-badge:hover {
+            transform: translateY(-2px);
+        }
+        
+        /* Theme Badge Count */
+        .theme-badge-count {
+            display: inline-block;
+            background-color: var(--primary-color);
+            color: white;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            text-align: center;
+            line-height: 20px;
+            margin-left: 5px;
+            font-size: 0.8em;
+        }
+        
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            #app {
+                padding: 10px;
+            }
+            
+            section {
+                padding: 15px;
+            }
+            
+            header h1 {
+                font-size: 2em;
+            }
+        }
+
+        /* Tag Group Styles */
+        .tag-group {
+            margin-bottom: 30px;
+        }
+    </style>
+</head>
+<body>
+    <div id="app">
+        <header>
+            <h1>Weekly Notes Summary</h1>
+            <p>March 21 - March 14, 2025</p>
+        </header>
+
+        <section id="weekly-summary">
+            <h2>Weekly Overview</h2>
+            <p>This week focused on technical explorations, personal connections, and problem-solving.  From setting up local LLMs and assisting a friend with neuroscience lab data analysis to troubleshooting Python environment issues and designing demo data updates, the week involved diverse technical challenges and opportunities to apply skills in practical contexts.</p>
+            
+            <div class="summary-details">
+                <div>
+                    <h3>Key Accomplishments</h3>
+                    <ul>
+                        <li>Successfully set up local LLMs using Ollama and Oterm, enabling efficient experimentation with different models.</li><li>Helped Grayson improve his neuroscience lab's data collection process by introducing and demonstrating the Marimo Python tool for building custom dashboards.</li><li>Identified and documented a problematic design in the demo data timestamps, specifically the duplication of timestamps across tables without proper foreign key relationships.</li><li>Set up MCP-CLI locally and began using it with O-Lama.</li><li>Diagnosed and resolved Python environment issues for team members transitioning to UV, uncovering underlying architecture mismatches previously masked by pip's flexibility.</li>
+                    </ul>
+                </div>
+                
+                <div>
+                    <h3>Emerging Themes</h3>
+                    <ul>
+                        <li>Technical Exploration and Skill Application</li><li>Personal Connections and Collaboration</li><li>Problem-Solving and Process Improvement</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <section id="themes-section">
+            <h2>Key Themes</h2>
+            <div id="themes-container"></div>
+        </section>
+
+        <section id="timeline">
+            <h2>Activity Timeline</h2>
+            <div id="timeline-chart"></div>
+        </section>
+
+        <section id="tags">
+            <h2>Topic Distribution</h2>
+            <div id="tags-chart"></div>
+        </section>
+
+        <section id="notes-section">
+            <h2>This Week's Notes</h2>
+            <div class="controls">
+                <button id="expand-all">Expand All</button>
+                <button id="collapse-all">Collapse All</button>
+                <button id="sort-by-date">Sort by Date</button>
+                <button id="group-by-tag">Group by Tag</button>
+            </div>
+            <div id="notes-container"></div>
+        </section>
+
+        <section id="daily-summaries">
+            <h2>Daily Breakdown</h2>
+            <div id="daily-container"></div>
+        </section>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        // Data from Python
+        const notesData = {
+  "notes": [
+    {
+      "id": 23,
+      "title": "Helped Grayson with Neuroscience Lab Efficiency",
+      "content": "This week I was able to help out Grayson and his neuroscience lab project by updating their process to be more efficient. I demonstrated a Python tool called Marimo that will allow him to build customized dashboards for their needs. It felt great to actually demo something useful! I shared this resource with him: https://marimo.io/p/@jason-steving/notebook-oham6j",
+      "created_at": "2025-03-21T14:30:55.894000",
+      "tags": "neuroscience"
+    },
+    {
+      "id": 22,
+      "title": "Local LLM Setup with Ollama and Oterm",
+      "content": "I've successfully set up Ollama locally to test various LLMs on my new M4 Max. This allowed me to experiment with different local models. Later, I added Oterm, which provides a cleaner terminal chat interface compared to working with Ollama directly. The terminal interface has been a really pleasant way to interact with these local models.",
+      "created_at": "2025-03-21T12:04:39.059000",
+      "tags": "llm"
+    },
+    {
+      "id": 21,
+      "title": "MCP-CLI setup success",
+      "content": "I was able to set up the MCP-CLI tool locally and started running stuff using O-Lama with my own click-clack tools.",
+      "created_at": "2025-03-20T15:32:14.849000",
+      "tags": "llm"
+    },
+    {
+      "id": 20,
+      "title": "Tim from 24 Hour Fitness Pool",
+      "content": "Met Tim at the 24 Hour Fitness pool. He's visually impaired (nearly blind) but impressively swims around 1200 laps. He's not particularly fast or strong in his technique, but shows remarkable dedication and perseverance despite his visual impairment. We had a good conversation about the Gartman. Worth remembering as an example of determination.",
+      "created_at": "2025-03-19T17:31:15.906000",
+      "tags": "Names"
+    },
+    {
+      "id": 19,
+      "title": "Grayson's Neuroscience Lab Question",
+      "content": "# Note: Grayson's Neuroscience Lab Question\n\nGrayson (new acquaintance through Eddie) reached out asking:\n\n*This is a pretty sweet opportunity! I'm always looking for ways to use my skills to help friends in real life, which is surprisingly hard to come by.*\n\n*Not sure yet what my help will look like - could be just encouragement or pointing him in the right direction, or I might get nerdsniped and end up writing some code for him.*\n\n- How to improve his neuroscience lab's data collection and analysis process using software\n- Whether there's code he could write to improve his process\n- Looking for my opinion and advice\n\nNeed to follow up with thoughts on:\n- Data collection automation options\n- Analysis pipeline improvements\n- Software recommendations for neuroscience data\n\nRemember to keep it practical based on my experience with similar projects.",
+      "created_at": "2025-03-19T10:40:11.782000",
+      "tags": "personal connections"
+    },
+    {
+      "id": 18,
+      "title": "Python asyncio REPL shortcut",
+      "content": "The ability to run asyncio directly from the REPL using `python -m asyncio` is indeed quite useful. This launches an interactive asyncio-enabled REPL where you can write and execute asynchronous code without the usual boilerplate needed to set up an event loop.\n\nIn a standard Python REPL, you'd need to:\n1. Import asyncio\n2. Create and run an event loop manually\n3. Use run_until_complete() for each coroutine\n\nBut with `python -m asyncio`, you get:\n- Automatic event loop setup\n- The ability to directly `await` coroutines\n- Access to all asyncio functionality in an interactive environment\n\nThis makes it much easier to experiment with asynchronous code, test API calls, or debug existing async functions without creating a full script.",
+      "created_at": "2025-03-18T12:18:53.074000",
+      "tags": "python-tips"
+    },
+    {
+      "id": 17,
+      "title": "Demo Data Timestamp Update Project Notes",
+      "content": "# Demo Data Timestamp Update - Project Notes\n\n## Problem Statement\nNeed to keep demo data timestamps current to ensure realistic data representation. Currently identified a problematic design where conversation timestamps are duplicated across multiple tables without proper foreign key relationships.\n\n## Tables Requiring Timestamp Updates\n\n### Identified Tables\n- `conversation` table - primary timestamp source\n- `user_story_classification` table - contains duplicated conversation timestamps\n\n### Design Issue\nThe `user_story_classification` table has a top-level column that directly encodes the conversation's timestamp instead of using a foreign key reference to the `conversation` table. This means:\n- Timestamps are stored redundantly\n- Updates must be made in multiple places to maintain consistency\n- Increased risk of data inconsistency\n\n## Update Process Requirements\nWhen updating timestamps:\n1. Identify all conversations requiring updates in the `conversation` table\n2. Find corresponding records in the `user_story_classification` table\n3. Update timestamps consistently across both tables\n4. Verify consistency after updates\n5. Complete all updates well before the nightly materialized view refresh\n\n### Materialized View Consideration\nThere is a materialized view over the `conversation` table that gets refreshed nightly. When updating timestamps:\n- Schedule updates with sufficient buffer time before the nightly refresh\n- Ensure all timestamp updates are completed and committed prior to the materialized view regeneration\n- Verify the updated timestamps are correctly reflected in the materialized view after refresh\n\n## Next Steps\n- Identify any other tables that might duplicate timestamp information\n- Consider writing a script to handle synchronized updates\n- Document the full list of affected tables and their relationships\n- Evaluate long-term solution: schema redesign to use proper foreign key relationships\n\n## Future Improvements\nConsider proposing a schema change to use proper foreign key relationships instead of duplicating timestamp data. This would:\n- Ensure data consistency\n- Simplify update processes\n- Follow database normalization best practices\n\n## Questions To Answer\n- Are there other tables besides `conversation` and `user_story_classification` with this issue?\n- Is there existing code that handles these updates we can leverage?\n- What's the update frequency needed for demo data?",
+      "created_at": "2025-03-18T10:53:56.127000",
+      "tags": "demo-data"
+    },
+    {
+      "id": 16,
+      "title": "Grayson's Data Analysis Project",
+      "content": "Grayson (Eddie and Paula's friend) reached out this morning about helping with a data analysis/AI project for his work. This is exciting because:\n\n- He specifically sought out my technical expertise\n- It's a good opportunity to apply my skills in a real-world context with someone I know\n- I've been wanting to find more ways to use my technical knowledge in personal connections\n- It's satisfying to have friends recognize and value my skills\n\nNeed to follow up to get more details about his specific needs and see where this collaboration might go.",
+      "created_at": "2025-03-17T15:50:02.046000",
+      "tags": "personal connections"
+    },
+    {
+      "id": 15,
+      "title": "UV Package Manager Transition Issues",
+      "content": "One important issue I encountered after setting up UV at work: team members who seemed to have functional Python environments (with various versions of Python, Pyenv, etc.) that worked fine with our pip-based installation suddenly faced problems when transitioning to UV.\n\nThe root cause appears to be that UV actually exposed pre-existing architecture mismatches in their Python installations that pip was silently working around. These underlying issues weren't apparent until the UV transition revealed them.\n\nMy own transition was smoother, likely because my machine's Python environment happened to be in a more correctly configured state. This creates an interesting friction point: UV doesn't cause problems so much as it surfaces existing ones that were previously hidden.\n\nThis is worth considering when planning transitions - people might resist moving to UV not because of issues with UV itself, but because it forces them to confront and fix Python environment problems they didn't know they had.",
+      "created_at": "2025-03-17T15:14:56.853000",
+      "tags": "Python"
+    },
+    {
+      "id": 14,
+      "title": "GitHub Note-Taking System Test",
+      "content": "This is a test note demonstrating the note-taking database that can be persisted to GitHub and accessed across multiple devices. \n\nThe system allows for structured storage of notes with titles, content, and optional tags for better organization.\n\nKey benefits:\n- Cross-device synchronization\n- Version control through Git\n- Simple organization with tags\n- Persistent storage\n- Easy backup",
+      "created_at": "2025-03-17T12:52:59.528000",
+      "tags": "system-test"
+    },
+    {
+      "id": 13,
+      "title": "Note-Taking System Up and Running",
+      "content": "I'm super happy that I was able to get my note-taking set up from my work laptop as well as my personal laptop. I'm really excited to be able to start just like really freeform making notes about things that I'm learning and doing at work, what things I accomplish, things I learn in my personal life, all those sorts of things. I'm glad I'll be able to do it from both computers.\n\nThis flexibility means I can capture thoughts and ideas no matter where I am or which device I'm using. Looking forward to building a comprehensive collection of notes covering both professional and personal growth.",
+      "created_at": "2025-03-17T12:49:08.315000",
+      "tags": "productivity"
+    },
+    {
+      "id": 12,
+      "title": "Work Laptop Note Integration",
+      "content": "I can now successfully add notes from both my work laptop and my personal laptop. This gives me more flexibility to capture thoughts and information regardless of which device I'm using at the moment.",
+      "created_at": "2025-03-17T12:46:02.663000",
+      "tags": "productivity"
+    },
+    {
+      "id": 11,
+      "title": "GitHub Persistence Test 2",
+      "content": "This is another test note to check if GitHub persistence is working correctly. Testing the synchronization functionality once more.\n\nBy the way, zebras are cool! Their distinctive black and white striped pattern is not only beautiful but serves practical purposes like confusing predators and regulating body temperature.",
+      "created_at": "2025-03-17T09:51:14.754000",
+      "tags": "testing"
+    },
+    {
+      "id": 10,
+      "title": "GitHub Persistence Test",
+      "content": "This is a test note to check if GitHub persistence is working correctly. This is my first time testing this functionality to see if notes are properly saved and synchronized with GitHub.",
+      "created_at": "2025-03-17T09:46:30.599000",
+      "tags": "testing"
+    },
+    {
+      "id": 9,
+      "title": "The Value of Social Connections",
+      "content": "I also realized this weekend that it's super fun to just put a little extra social effort into spending time with your friends. I had a really great time even meeting up with a co-worker, Seth, having a beer, just talking. It was great. Really enjoyed drinking. The next day spent time with a bunch of people, had people at our house to play games. Then even Sunday, three days in a row, then Eddie and Paola came over and hung out with me. It was nice, honestly. I actually enjoyed being social in a way that I think sometimes I don't prioritize enough.",
+      "created_at": "2025-03-16T22:06:59.722000",
+      "tags": "social-life"
+    },
+    {
+      "id": 8,
+      "title": "Vibe Coding: First Impressions",
+      "content": "Today I realized that 'vibe coding' genuinely works. While I'm not super efficient with it yet (spent some time going in circles and manually reading through everything), it ultimately made coding fun. Just sitting with my laptop on the weekend, thinking out loud, and having the mechanical code parts handled for me.\n\nThe code I'm truly interested in is much lower-level, more nuanced, complicated, and novel. I don't particularly enjoy the mechanical aspects of setting up arguments, passing data around, and checking conditions.\n\nBeing able to use my voice to interact with an LLM that produces decent code, then refining it together and testing iteratively, was a really cool experience that I thoroughly enjoyed.",
+      "created_at": "2025-03-16T21:45:58.178000",
+      "tags": "llm"
+    },
+    {
+      "id": 4,
+      "title": "Project Ideas - Machine Learning",
+      "content": "1. Time series forecasting for renewable energy production\n2. NLP analysis of customer reviews for sentiment patterns\n3. Computer vision app for plant disease identification\n4. Reinforcement learning for resource optimization\n5. Recommendation system using collaborative filtering",
+      "created_at": "2025-03-16T13:51:22.555000",
+      "tags": "ideas"
+    },
+    {
+      "id": 1,
+      "title": "Python Data Analysis Tips",
+      "content": "Key libraries to remember:\n- Pandas for data manipulation\n- NumPy for numerical operations\n- Matplotlib and Seaborn for visualization\n- Scikit-learn for machine learning\n\nRemember to use UV package manager for installation instead of pip.",
+      "created_at": "2025-03-16T13:51:08.635000",
+      "tags": "programming"
+    }
+  ]
+};
+        const tagColors = {"Names": "hsl(255, 70%, 90%)", "Python": "hsl(200, 70%, 90%)", "demo-data": "hsl(25, 70%, 90%)", "ideas": "hsl(75, 70%, 90%)", "llm": "hsl(50, 70%, 90%)", "neuroscience": "hsl(355, 70%, 90%)", "personal connections": "hsl(345, 70%, 90%)", "productivity": "hsl(80, 70%, 90%)", "programming": "hsl(355, 70%, 90%)", "python-tips": "hsl(105, 70%, 90%)", "social-life": "hsl(140, 70%, 90%)", "system-test": "hsl(205, 70%, 90%)", "testing": "hsl(315, 70%, 90%)"};
+        const timelineData = {"Monday": 7, "Tuesday": 2, "Wednesday": 2, "Thursday": 1, "Friday": 2, "Sunday": 4};
+        const tagCounts = {"neuroscience": 1, "llm": 3, "Names": 1, "personal connections": 2, "python-tips": 1, "demo-data": 1, "Python": 1, "system-test": 1, "productivity": 2, "testing": 2, "social-life": 1, "ideas": 1, "programming": 1};
+        const themes = [{"name": "Llm Focus", "description": "There were 3 notes related to llm. These included topics like: Local LLM Setup with Ollama and Oterm; MCP-CLI setup success; Vibe Coding: First Impressions", "notes": [22, 21, 8], "tag": "llm"}, {"name": "Personal Connections Focus", "description": "There were 2 notes related to personal connections. These included topics like: Grayson's Neuroscience Lab Question; Grayson's Data Analysis Project", "notes": [19, 16], "tag": "personal connections"}, {"name": "Productivity Focus", "description": "There were 2 notes related to productivity. These included topics like: Note-Taking System Up and Running; Work Laptop Note Integration", "notes": [13, 12], "tag": "productivity"}, {"name": "Testing Focus", "description": "There were 2 notes related to testing. These included topics like: GitHub Persistence Test 2; GitHub Persistence Test", "notes": [11, 10], "tag": "testing"}];
+        
+        // DOM Elements
+        const notesContainer = document.getElementById('notes-container');
+        const dailyContainer = document.getElementById('daily-container');
+        const themesContainer = document.getElementById('themes-container');
+        const expandAllButton = document.getElementById('expand-all');
+        const collapseAllButton = document.getElementById('collapse-all');
+        const sortByDateButton = document.getElementById('sort-by-date');
+        const groupByTagButton = document.getElementById('group-by-tag');
+        
+        // State tracking
+        let currentSort = 'date-desc';
+        let currentGroup = 'none';
+        
+        // Initialize
+        function init() {
+            renderThemes();
+            renderNotes();
+            renderDailySummaries();
+            renderTimelineChart();
+            renderTagsChart();
+            setupEventListeners();
+        }
+        
+        // Render themes badges
+        function renderThemes() {
+            themesContainer.innerHTML = '';
+            
+            themes.forEach(theme => {
+                const themeEl = document.createElement('div');
+                themeEl.classList.add('theme-badge');
+                themeEl.style.backgroundColor = tagColors[theme.tag] || '#f0f0f0';
+                themeEl.innerHTML = `
+                    <span>${theme.name}</span>
+                    <span class="theme-badge-count">${theme.notes.length}</span>
+                `;
+                
+                // Add click event to filter notes by this theme
+                themeEl.addEventListener('click', () => {
+                    filterNotesByTag(theme.tag);
+                });
+                
+                themesContainer.appendChild(themeEl);
+            });
+        }
+        
+        // Filter notes by tag
+        function filterNotesByTag(tag) {
+            const notes = document.querySelectorAll('.note');
+            
+            notes.forEach(note => {
+                const noteTags = note.getAttribute('data-tags').split(',');
+                if (noteTags.includes(tag)) {
+                    note.style.display = 'block';
+                } else {
+                    note.style.display = 'none';
+                }
+            });
+            
+            // Update UI to indicate filtering is active
+            document.querySelectorAll('.theme-badge').forEach(badge => {
+                badge.style.opacity = badge.textContent.includes(tag) ? 1 : 0.5;
+            });
+            
+            // Add reset button if not already present
+            if (!document.getElementById('reset-filter')) {
+                const resetButton = document.createElement('button');
+                resetButton.id = 'reset-filter';
+                resetButton.textContent = 'Show All Notes';
+                resetButton.addEventListener('click', resetFilter);
+                document.querySelector('.controls').appendChild(resetButton);
+            }
+        }
+        
+        // Reset filter to show all notes
+        function resetFilter() {
+            const notes = document.querySelectorAll('.note');
+            notes.forEach(note => note.style.display = 'block');
+            
+            // Reset theme badges
+            document.querySelectorAll('.theme-badge').forEach(badge => {
+                badge.style.opacity = 1;
+            });
+            
+            // Remove reset button
+            const resetButton = document.getElementById('reset-filter');
+            if (resetButton) {
+                resetButton.remove();
+            }
+        }
+        
+        // Render the notes
+        function renderNotes() {
+            notesContainer.innerHTML = '';
+            
+            notesData.notes.forEach(note => {
+                const noteDiv = document.createElement('div');
+                noteDiv.classList.add('note');
+                noteDiv.setAttribute('data-id', note.id);
+                noteDiv.setAttribute('data-date', note.created_at);
+                noteDiv.setAttribute('data-tags', note.tags || '');
+                
+                const created = new Date(note.created_at);
+                const formattedDate = created.toLocaleDateString('en-US', { 
+                    weekday: 'short',
+                    month: 'short', 
+                    day: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit'
+                });
+                
+                // Create the note header
+                const noteHeader = document.createElement('div');
+                noteHeader.classList.add('note-header');
+                
+                // Create the note title
+                const titleEl = document.createElement('h3');
+                titleEl.textContent = note.title;
+                
+                // Create tags element
+                const tagsEl = document.createElement('div');
+                tagsEl.classList.add('note-tags');
+                
+                // Add tags if any
+                if (note.tags) {
+                    note.tags.split(',').forEach(tag => {
+                        tag = tag.trim();
+                        if (tag) {
+                            const tagEl = document.createElement('span');
+                            tagEl.classList.add('tag');
+                            tagEl.textContent = tag;
+                            tagEl.style.backgroundColor = tagColors[tag] || '#f0f0f0';
+                            
+                            // Make tags clickable for filtering
+                            tagEl.addEventListener('click', (e) => {
+                                e.stopPropagation(); // Don't toggle note expansion
+                                filterNotesByTag(tag);
+                            });
+                            
+                            tagsEl.appendChild(tagEl);
+                        }
+                    });
+                }
+                
+                // Add elements to header
+                noteHeader.appendChild(titleEl);
+                noteHeader.appendChild(tagsEl);
+                
+                // Create meta information element
+                const metaEl = document.createElement('div');
+                metaEl.classList.add('note-meta');
+                metaEl.textContent = `Created: ${formattedDate}`;
+                
+                // Create the content container
+                const contentEl = document.createElement('div');
+                contentEl.classList.add('note-content');
+                contentEl.classList.add('markdown-body');
+                contentEl.innerHTML = marked.parse(note.content);
+                
+                // Add everything to the note
+                noteDiv.appendChild(noteHeader);
+                noteDiv.appendChild(metaEl);
+                noteDiv.appendChild(contentEl);
+                
+                // Toggle expansion when header is clicked
+                noteHeader.addEventListener('click', () => {
+                    noteDiv.classList.toggle('expanded');
+                });
+                
+                notesContainer.appendChild(noteDiv);
+            });
+        }
+        
+        // Render daily summaries
+        function renderDailySummaries() {
+            dailyContainer.innerHTML = '';
+            
+            // Group notes by day
+            const days = {};
+            notesData.notes.forEach(note => {
+                const created = new Date(note.created_at);
+                const day = created.toLocaleDateString('en-US', { weekday: 'long' });
+                
+                if (!days[day]) {
+                    days[day] = [];
+                }
+                
+                days[day].push(note);
+            });
+            
+            // Sort days in order (Monday to Sunday)
+            const dayOrder = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+            
+            dayOrder.forEach(day => {
+                if (days[day] && days[day].length > 0) {
+                    const dayDiv = document.createElement('div');
+                    dayDiv.classList.add('day-summary');
+                    
+                    const heading = document.createElement('h3');
+                    heading.textContent = `${day} (${days[day].length} notes)`;
+                    
+                    const summary = document.createElement('p');
+                    
+                    // Create a simple summary of the day's activities
+                    const topics = new Set();
+                    days[day].forEach(note => {
+                        if (note.tags) {
+                            note.tags.split(',').forEach(tag => {
+                                topics.add(tag.trim());
+                            });
+                        }
+                    });
+                    
+                    const topicsList = Array.from(topics).filter(t => t).join(', ');
+                    
+                    summary.textContent = `On ${day}, you wrote about ${topics.size} topics: ${topicsList || 'various subjects'}.`;
+                    
+                    dayDiv.appendChild(heading);
+                    dayDiv.appendChild(summary);
+                    dailyContainer.appendChild(dayDiv);
+                }
+            });
+        }
+        
+        // Render the timeline chart
+        function renderTimelineChart() {
+            const ctx = document.createElement('canvas');
+            document.getElementById('timeline-chart').appendChild(ctx);
+            
+            const days = Object.keys(timelineData);
+            const counts = Object.values(timelineData);
+            
+            new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: days,
+                    datasets: [{
+                        label: 'Number of Notes',
+                        data: counts,
+                        backgroundColor: '#0056b3',
+                        borderColor: '#004494',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                precision: 0
+                            }
+                        }
+                    }
+                }
+            });
+        }
+        
+        // Render the tags distribution chart
+        function renderTagsChart() {
+            const ctx = document.createElement('canvas');
+            document.getElementById('tags-chart').appendChild(ctx);
+            
+            const tags = Object.keys(tagCounts);
+            const counts = Object.values(tagCounts);
+            const bgColors = tags.map(tag => tagColors[tag] || '#f0f0f0');
+            
+            new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: tags,
+                    datasets: [{
+                        data: counts,
+                        backgroundColor: bgColors,
+                        borderColor: 'white',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            position: 'right',
+                            onClick: (e, legendItem, legend) => {
+                                filterNotesByTag(legendItem.text);
+                            }
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return `${context.label}: ${context.raw} notes`;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+        
+        // Set up event listeners
+        function setupEventListeners() {
+            // Expand all notes
+            expandAllButton.addEventListener('click', () => {
+                document.querySelectorAll('.note').forEach(note => {
+                    note.classList.add('expanded');
+                });
+            });
+            
+            // Collapse all notes
+            collapseAllButton.addEventListener('click', () => {
+                document.querySelectorAll('.note').forEach(note => {
+                    note.classList.remove('expanded');
+                });
+            });
+            
+            // Sort by date
+            sortByDateButton.addEventListener('click', () => {
+                const notes = Array.from(document.querySelectorAll('.note'));
+                
+                // Toggle sort direction
+                if (currentSort === 'date-desc') {
+                    notes.sort((a, b) => {
+                        return new Date(a.getAttribute('data-date')) - new Date(b.getAttribute('data-date'));
+                    });
+                    currentSort = 'date-asc';
+                    sortByDateButton.textContent = 'Sort Newest First';
+                } else {
+                    notes.sort((a, b) => {
+                        return new Date(b.getAttribute('data-date')) - new Date(a.getAttribute('data-date'));
+                    });
+                    currentSort = 'date-desc';
+                    sortByDateButton.textContent = 'Sort Oldest First';
+                }
+                
+                // Reappend notes in new order
+                notes.forEach(note => {
+                    notesContainer.appendChild(note);
+                });
+            });
+            
+            // Group by tag
+            groupByTagButton.addEventListener('click', () => {
+                if (currentGroup === 'tag') {
+                    // Reset grouping
+                    renderNotes();
+                    currentGroup = 'none';
+                    groupByTagButton.textContent = 'Group by Tag';
+                    return;
+                }
+                
+                // Group by tag
+                currentGroup = 'tag';
+                groupByTagButton.textContent = 'Remove Grouping';
+                
+                // Clear container
+                notesContainer.innerHTML = '';
+                
+                // Get all unique tags
+                const tags = new Set();
+                notesData.notes.forEach(note => {
+                    if (note.tags) {
+                        note.tags.split(',').forEach(tag => {
+                            tag = tag.trim();
+                            if (tag) tags.add(tag);
+                        });
+                    }
+                });
+                
+                // Add uncategorized group
+                tags.add('uncategorized');
+                
+                // Create groups for each tag
+                tags.forEach(tag => {
+                    const groupDiv = document.createElement('div');
+                    groupDiv.classList.add('tag-group');
+                    
+                    const groupHeader = document.createElement('h3');
+                    groupHeader.style.backgroundColor = tagColors[tag] || '#f0f0f0';
+                    groupHeader.style.padding = '10px';
+                    groupHeader.style.borderRadius = '5px';
+                    groupHeader.style.marginTop = '20px';
+                    
+                    // Count notes with this tag
+                    const tagNotes = notesData.notes.filter(note => {
+                        if (tag === 'uncategorized') {
+                            return !note.tags || note.tags.trim() === '';
+                        }
+                        return note.tags && note.tags.split(',').map(t => t.trim()).includes(tag);
+                    });
+                    
+                    groupHeader.textContent = `${tag} (${tagNotes.length})`;
+                    groupDiv.appendChild(groupHeader);
+                    
+                    // Add notes to this group
+                    tagNotes.forEach(note => {
+                        const noteDiv = document.createElement('div');
+                        noteDiv.classList.add('note');
+                        noteDiv.setAttribute('data-id', note.id);
+                        noteDiv.setAttribute('data-date', note.created_at);
+                        noteDiv.setAttribute('data-tags', note.tags || '');
+                        
+                        const created = new Date(note.created_at);
+                        const formattedDate = created.toLocaleDateString('en-US', { 
+                            weekday: 'short',
+                            month: 'short', 
+                            day: 'numeric',
+                            hour: '2-digit',
+                            minute: '2-digit'
+                        });
+                        
+                        // Create the note header
+                        const noteHeader = document.createElement('div');
+                        noteHeader.classList.add('note-header');
+                        
+                        // Create the note title
+                        const titleEl = document.createElement('h3');
+                        titleEl.textContent = note.title;
+                        
+                        // Create tags element
+                        const tagsEl = document.createElement('div');
+                        tagsEl.classList.add('note-tags');
+                        
+                        // Add tags if any
+                        if (note.tags) {
+                            note.tags.split(',').forEach(noteTag => {
+                                noteTag = noteTag.trim();
+                                if (noteTag) {
+                                    const tagEl = document.createElement('span');
+                                    tagEl.classList.add('tag');
+                                    tagEl.textContent = noteTag;
+                                    tagEl.style.backgroundColor = tagColors[noteTag] || '#f0f0f0';
+                                    
+                                    // Make tags clickable for filtering
+                                    tagEl.addEventListener('click', (e) => {
+                                        e.stopPropagation(); // Don't toggle note expansion
+                                        filterNotesByTag(noteTag);
+                                    });
+                                    
+                                    tagsEl.appendChild(tagEl);
+                                }
+                            });
+                        }
+                        
+                        // Add elements to header
+                        noteHeader.appendChild(titleEl);
+                        noteHeader.appendChild(tagsEl);
+                        
+                        // Create meta information element
+                        const metaEl = document.createElement('div');
+                        metaEl.classList.add('note-meta');
+                        metaEl.textContent = `Created: ${formattedDate}`;
+                        
+                        // Create the content container
+                        const contentEl = document.createElement('div');
+                        contentEl.classList.add('note-content');
+                        contentEl.classList.add('markdown-body');
+                        contentEl.innerHTML = marked.parse(note.content);
+                        
+                        // Add everything to the note
+                        noteDiv.appendChild(noteHeader);
+                        noteDiv.appendChild(metaEl);
+                        noteDiv.appendChild(contentEl);
+                        
+                        // Toggle expansion when header is clicked
+                        noteHeader.addEventListener('click', () => {
+                            noteDiv.classList.toggle('expanded');
+                        });
+                        
+                        groupDiv.appendChild(noteDiv);
+                    });
+                    
+                    if (tagNotes.length > 0) {
+                        notesContainer.appendChild(groupDiv);
+                    }
+                });
+            });
+        }
+        
+        // Initialize the page
+        init();
+    </script>
+</body>
+</html>
