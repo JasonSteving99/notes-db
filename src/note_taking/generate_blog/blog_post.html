@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Weekly Summary - March 21, 2025</title>
+    <title>Weekly Summary - March 23, 2025</title>
     <style>
         :root {
             --primary-color: #0056b3;
@@ -282,25 +282,25 @@
     <div id="app">
         <header>
             <h1>Weekly Notes Summary</h1>
-            <p>March 21 - March 14, 2025</p>
+            <p>March 16, 2025 - March 23</p>
         </header>
 
         <section id="weekly-summary">
             <h2>Weekly Overview</h2>
-            <p>This week focused on technical explorations, personal connections, and problem-solving.  From setting up local LLMs and assisting a friend with neuroscience lab data analysis to troubleshooting Python environment issues and designing demo data updates, the week involved diverse technical challenges and opportunities to apply skills in practical contexts.</p>
+            <p>This week focused on exploring and applying new tools, particularly in the realm of Python and local LLMs.  From discovering the Marimo library for static web embedding to setting up Ollama and Oterm for local LLM experimentation, the week centered around enhancing technical skills and assisting others with these newfound capabilities.</p>
             
             <div class="summary-details">
                 <div>
                     <h3>Key Accomplishments</h3>
                     <ul>
-                        <li>Successfully set up local LLMs using Ollama and Oterm, enabling efficient experimentation with different models.</li><li>Helped Grayson improve his neuroscience lab's data collection process by introducing and demonstrating the Marimo Python tool for building custom dashboards.</li><li>Identified and documented a problematic design in the demo data timestamps, specifically the duplication of timestamps across tables without proper foreign key relationships.</li><li>Set up MCP-CLI locally and began using it with O-Lama.</li><li>Diagnosed and resolved Python environment issues for team members transitioning to UV, uncovering underlying architecture mismatches previously masked by pip's flexibility.</li>
+                        <li>Successfully set up local LLM environment using Ollama and Oterm, enabling efficient testing of various models.</li><li>Discovered and utilized the Marimo library to embed Python code in static websites, eliminating the need for a backend and enabling new visualization possibilities.</li><li>Developed a workaround for loading pre-populated DuckDB databases within Marimo, expanding its functionality.</li><li>Helped Grayson's neuroscience lab improve their data collection and analysis process by introducing and demonstrating the Marimo tool.</li><li>Successfully set up MCP-CLI and integrated it with Ollama for enhanced local LLM interaction and tool usage.</li>
                     </ul>
                 </div>
                 
                 <div>
                     <h3>Emerging Themes</h3>
                     <ul>
-                        <li>Technical Exploration and Skill Application</li><li>Personal Connections and Collaboration</li><li>Problem-Solving and Process Improvement</li>
+                        <li>Tool Exploration and Application</li><li>Local LLM Experimentation and Development</li><li>Assisting Others with Technical Expertise</li>
                     </ul>
                 </div>
             </div>
@@ -336,14 +336,100 @@
             <h2>Daily Breakdown</h2>
             <div id="daily-container"></div>
         </section>
+
+        <section id="marimo-integration">
+            <h2>Explore the Notes Database Interactively with Marimo!</h2>
+            <div>
+                <marimo-iframe data-show-code="false">
+                <pre>
+                    import marimo as mo
+                </pre>
+                <pre>
+                    import duckdb
+                    import io
+                    import os
+                    import tempfile
+                    import urllib.request
+
+                    # Keep this tempdir alive as long as we have the duckdb connection.
+                    temp_dir = tempfile.TemporaryDirectory()
+                    duckdb_file = os.path.join(temp_dir.name, 'notes.duckdb')
+
+                    with urllib.request.urlopen('https://raw.githubusercontent.com/JasonSteving99/notes-db/refs/heads/main//src/note_taking/database/notes.duckdb') as response:
+                        with open(duckdb_file, 'wb') as file:
+                            file.write(response.read())
+
+                    conn = duckdb.connect(duckdb_file, read_only=True)
+                </pre>
+                <pre>
+                _df = mo.sql(
+                    f"""
+                    SELECT * FROM notes;
+                    """,
+                    engine=conn
+                )
+                </pre>
+                <pre>
+                import itertools
+
+                get_picked_tag, set_picked_tag = mo.state(None)
+
+                _l = [
+                    mo.ui.button(label=row[0], value=row[1], on_click=set_picked_tag)
+                    for row in conn.execute("SELECT name, tag_id FROM tags;").fetchall()
+                ]
+                mo.hstack([mo.vstack(x) for x in itertools.batched(_l, len(_l) // 4)])
+                </pre>
+                <pre>
+                _table = None
+                if picked_tag := get_picked_tag():
+                    _table = mo.ui.table(
+                        conn.execute(
+                            """
+                            SELECT * 
+                            FROM notes n
+                            JOIN note_tags nt ON n.note_id = nt.note_id
+                            JOIN tags t ON nt.tag_id = t.tag_id
+                            WHERE t.tag_id = $picked_tag
+                            """,
+                            {"picked_tag": picked_tag}
+                        ).df(),
+                    )
+                _table
+                </pre>
+                </marimo-iframe>
+            </div>
+        </section>
     </div>
 
+    <script src="https://cdn.jsdelivr.net/npm/@marimo-team/marimo-snippets@1"></script>
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
         // Data from Python
         const notesData = {
   "notes": [
+    {
+      "id": 26,
+      "title": "Marimo Snippets for Static Web Embedding of Python Code",
+      "content": "I discovered a super cool new library: https://github.com/marimo-team/marimo-snippets\n\nThis library allows you to embed any Python code as a marimo snippet within static websites without requiring a backend. This is incredibly exciting because I can now host various visualizations based on DuckDB databases without running them with a backend.\n\nWhat's even more interesting is the workaround I developed to load pre-populated DuckDB databases. It works by code-generating over exported schemas and CSVs obtained by running \"export database\" from a DuckDB connection. This creates a pure Python implementation for loading all the data back into a DuckDB connection from scratch, bypassing DuckDB's internal \"attach database\" query which isn't supported in the Wathom implementation.\n\nThe approach just requires adding a new build step to the deployment of any static website, allowing me to embed a DuckDB database loaded with data using this technique. I'm extremely excited about the possibilities this opens up!",
+      "created_at": "2025-03-22T19:40:52.731000",
+      "tags": "python-tools"
+    },
+    {
+      "id": 25,
+      "title": "Different Perspectives on Technical Approaches",
+      "content": "I just had the realization that very often when people say things like \"that's super sketchy\" or \"that's really error prone\", you could probably find a *different person *with either a different attitude/mindset or (higher) skill level and they'd say \"oh so you *really* know what you're doing\", or \"you've squeezed every last drop of juice out of that orange\". This feels like kinda a deep insight to me. I mean, for example, isn't manual memory management ***extremely jank*** almost by definition from some perspectives? But also from a different person who's knowledgeable/comfortable in that domain....different story",
+      "created_at": "2025-03-22T19:36:53.999000",
+      "tags": "philosophy"
+    },
+    {
+      "id": 24,
+      "title": "GitHub Actions for GitHub Pages - A Game Changer",
+      "content": "I'm super impressed with Simon Willison's blog post about GitHub Actions for GitHub Pages ([https://til.simonwillison.net/github-actions/github-pages](https://til.simonwillison.net/github-actions/github-pages)). It immediately gave me a superpower that allowed me to take the project I've been working on this week and wrap it up into something I can actually demonstrate as a website.\n\nThis perfectly illustrates that great insight: showing people is infinitely more effective than telling them. Being able to use GitHub Actions to make a GitHub Pages site so easily was incredibly satisfying. I mean, I still vibe coded the whole thing - all I did was point it at the blog post and it just completely worked! Super, super cool, super satisfying.\n\nReally grateful for this blog post. It transformed my project from something I could only describe to something people can actually see and interact with.",
+      "created_at": "2025-03-21T19:18:52.753000",
+      "tags": "github, tools"
+    },
     {
       "id": 23,
       "title": "Helped Grayson with Neuroscience Lab Efficiency",
@@ -405,14 +491,14 @@
       "title": "UV Package Manager Transition Issues",
       "content": "One important issue I encountered after setting up UV at work: team members who seemed to have functional Python environments (with various versions of Python, Pyenv, etc.) that worked fine with our pip-based installation suddenly faced problems when transitioning to UV.\n\nThe root cause appears to be that UV actually exposed pre-existing architecture mismatches in their Python installations that pip was silently working around. These underlying issues weren't apparent until the UV transition revealed them.\n\nMy own transition was smoother, likely because my machine's Python environment happened to be in a more correctly configured state. This creates an interesting friction point: UV doesn't cause problems so much as it surfaces existing ones that were previously hidden.\n\nThis is worth considering when planning transitions - people might resist moving to UV not because of issues with UV itself, but because it forces them to confront and fix Python environment problems they didn't know they had.",
       "created_at": "2025-03-17T15:14:56.853000",
-      "tags": "Python"
+      "tags": "python"
     },
     {
       "id": 14,
       "title": "GitHub Note-Taking System Test",
       "content": "This is a test note demonstrating the note-taking database that can be persisted to GitHub and accessed across multiple devices. \n\nThe system allows for structured storage of notes with titles, content, and optional tags for better organization.\n\nKey benefits:\n- Cross-device synchronization\n- Version control through Git\n- Simple organization with tags\n- Persistent storage\n- Easy backup",
       "created_at": "2025-03-17T12:52:59.528000",
-      "tags": "system-test"
+      "tags": "testing"
     },
     {
       "id": 13,
@@ -472,10 +558,10 @@
     }
   ]
 };
-        const tagColors = {"Names": "hsl(255, 70%, 90%)", "Python": "hsl(200, 70%, 90%)", "demo-data": "hsl(25, 70%, 90%)", "ideas": "hsl(75, 70%, 90%)", "llm": "hsl(50, 70%, 90%)", "neuroscience": "hsl(355, 70%, 90%)", "personal connections": "hsl(345, 70%, 90%)", "productivity": "hsl(80, 70%, 90%)", "programming": "hsl(355, 70%, 90%)", "python-tips": "hsl(105, 70%, 90%)", "social-life": "hsl(140, 70%, 90%)", "system-test": "hsl(205, 70%, 90%)", "testing": "hsl(315, 70%, 90%)"};
-        const timelineData = {"Monday": 7, "Tuesday": 2, "Wednesday": 2, "Thursday": 1, "Friday": 2, "Sunday": 4};
-        const tagCounts = {"neuroscience": 1, "llm": 3, "Names": 1, "personal connections": 2, "python-tips": 1, "demo-data": 1, "Python": 1, "system-test": 1, "productivity": 2, "testing": 2, "social-life": 1, "ideas": 1, "programming": 1};
-        const themes = [{"name": "Llm Focus", "description": "There were 3 notes related to llm. These included topics like: Local LLM Setup with Ollama and Oterm; MCP-CLI setup success; Vibe Coding: First Impressions", "notes": [22, 21, 8], "tag": "llm"}, {"name": "Personal Connections Focus", "description": "There were 2 notes related to personal connections. These included topics like: Grayson's Neuroscience Lab Question; Grayson's Data Analysis Project", "notes": [19, 16], "tag": "personal connections"}, {"name": "Productivity Focus", "description": "There were 2 notes related to productivity. These included topics like: Note-Taking System Up and Running; Work Laptop Note Integration", "notes": [13, 12], "tag": "productivity"}, {"name": "Testing Focus", "description": "There were 2 notes related to testing. These included topics like: GitHub Persistence Test 2; GitHub Persistence Test", "notes": [11, 10], "tag": "testing"}];
+        const tagColors = {"Names": "hsl(255, 70%, 90%)", "demo-data": "hsl(20, 70%, 90%)", "github": "hsl(235, 70%, 90%)", "ideas": "hsl(75, 70%, 90%)", "llm": "hsl(50, 70%, 90%)", "neuroscience": "hsl(355, 70%, 90%)", "personal connections": "hsl(345, 70%, 90%)", "philosophy": "hsl(350, 70%, 90%)", "productivity": "hsl(85, 70%, 90%)", "programming": "hsl(345, 70%, 90%)", "python": "hsl(80, 70%, 90%)", "python-tips": "hsl(115, 70%, 90%)", "python-tools": "hsl(255, 70%, 90%)", "social-life": "hsl(140, 70%, 90%)", "testing": "hsl(325, 70%, 90%)", "tools": "hsl(285, 70%, 90%)"};
+        const timelineData = {"Monday": 7, "Tuesday": 2, "Wednesday": 2, "Thursday": 1, "Friday": 3, "Saturday": 2, "Sunday": 4};
+        const tagCounts = {"python-tools": 1, "philosophy": 1, "github": 1, "tools": 1, "neuroscience": 1, "llm": 3, "Names": 1, "personal connections": 2, "python-tips": 1, "demo-data": 1, "python": 1, "testing": 3, "productivity": 2, "social-life": 1, "ideas": 1, "programming": 1};
+        const themes = [{"name": "Llm Focus", "description": "There were 3 notes related to llm. These included topics like: Local LLM Setup with Ollama and Oterm; MCP-CLI setup success; Vibe Coding: First Impressions", "notes": [22, 21, 8], "tag": "llm"}, {"name": "Testing Focus", "description": "There were 3 notes related to testing. These included topics like: GitHub Note-Taking System Test; GitHub Persistence Test 2; GitHub Persistence Test", "notes": [14, 11, 10], "tag": "testing"}, {"name": "Personal Connections Focus", "description": "There were 2 notes related to personal connections. These included topics like: Grayson's Neuroscience Lab Question; Grayson's Data Analysis Project", "notes": [19, 16], "tag": "personal connections"}, {"name": "Productivity Focus", "description": "There were 2 notes related to productivity. These included topics like: Note-Taking System Up and Running; Work Laptop Note Integration", "notes": [13, 12], "tag": "productivity"}];
         
         // DOM Elements
         const notesContainer = document.getElementById('notes-container');

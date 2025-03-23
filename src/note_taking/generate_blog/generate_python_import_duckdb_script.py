@@ -40,10 +40,7 @@ def __extract_table_name(create_statement: str) -> str:
     return None
 
 
-@hide_from_click_clack.command()
-@hide_from_click_clack.option("--export-dir", type=hide_from_click_clack.Path(exists=True, file_okay=False, dir_okay=True, readable=True), required=True)
-@hide_from_click_clack.option("--extensions", type=str, required=True, multiple=True)
-def generate_python_import_duckdb_script(export_dir: Path, extensions: list[str]) -> str:
+def generate_python_import_duckdb(export_dir: Path, extensions: list[str]) -> str:
     export_path = Path(export_dir)
 
     extensions_codegen = [
@@ -116,7 +113,17 @@ def load_connection() -> duckdb.DuckDBPyConnection:
     return conn
 """
 
-    hide_from_click_clack.echo(codegen)
+    return codegen
+
+
+@hide_from_click_clack.command()
+@hide_from_click_clack.option("--export-dir", type=hide_from_click_clack.Path(exists=True, file_okay=False, dir_okay=True, readable=True), required=True)
+@hide_from_click_clack.option("--extensions", type=str, required=True, multiple=True)
+def generate_python_import_duckdb_script(export_dir: Path, extensions: list[str]) -> str:
+    hide_from_click_clack.echo(
+        generate_python_import_duckdb(export_dir=export_dir, extensions=extensions)
+    )
+
 
 if __name__ == "__main__":
     generate_python_import_duckdb_script()

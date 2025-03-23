@@ -330,7 +330,7 @@ def generate_html(notes: List[Dict[str, Any]],
     <div id="app">
         <header>
             <h1>Weekly Notes Summary</h1>
-            <p>{datetime.now().strftime('%B %d')} - {(datetime.now() - timedelta(days=7)).strftime('%B %d, %Y')}</p>
+            <p>{(datetime.now() - timedelta(days=7)).strftime('%B %d, %Y')} - {datetime.now().strftime('%B %d')}</p>
         </header>
 
         <section id="weekly-summary">
@@ -384,8 +384,73 @@ def generate_html(notes: List[Dict[str, Any]],
             <h2>Daily Breakdown</h2>
             <div id="daily-container"></div>
         </section>
+
+        <section id="marimo-integration">
+            <h2>Explore the Notes Database Interactively with Marimo!</h2>
+            <div>
+                <marimo-iframe data-show-code="false">
+                <pre>
+                    import marimo as mo
+                </pre>
+                <pre>
+                    import duckdb
+                    import io
+                    import os
+                    import tempfile
+                    import urllib.request
+
+                    # Keep this tempdir alive as long as we have the duckdb connection.
+                    temp_dir = tempfile.TemporaryDirectory()
+                    duckdb_file = os.path.join(temp_dir.name, 'notes.duckdb')
+
+                    with urllib.request.urlopen('https://raw.githubusercontent.com/JasonSteving99/notes-db/refs/heads/main//src/note_taking/database/notes.duckdb') as response:
+                        with open(duckdb_file, 'wb') as file:
+                            file.write(response.read())
+
+                    conn = duckdb.connect(duckdb_file, read_only=True)
+                </pre>
+                <pre>
+                _df = mo.sql(
+                    f\"\"\"
+                    SELECT * FROM notes;
+                    \"\"\",
+                    engine=conn
+                )
+                </pre>
+                <pre>
+                import itertools
+
+                get_picked_tag, set_picked_tag = mo.state(None)
+
+                _l = [
+                    mo.ui.button(label=row[0], value=row[1], on_click=set_picked_tag)
+                    for row in conn.execute("SELECT name, tag_id FROM tags;").fetchall()
+                ]
+                mo.hstack([mo.vstack(x) for x in itertools.batched(_l, len(_l) // 4)])
+                </pre>
+                <pre>
+                _table = None
+                if picked_tag := get_picked_tag():
+                    _table = mo.ui.table(
+                        conn.execute(
+                            \"\"\"
+                            SELECT * 
+                            FROM notes n
+                            JOIN note_tags nt ON n.note_id = nt.note_id
+                            JOIN tags t ON nt.tag_id = t.tag_id
+                            WHERE t.tag_id = $picked_tag
+                            \"\"\",
+                            {{"picked_tag": picked_tag}}
+                        ).df(),
+                    )
+                _table
+                </pre>
+                </marimo-iframe>
+            </div>
+        </section>
     </div>
 
+    <script src="https://cdn.jsdelivr.net/npm/@marimo-team/marimo-snippets@1"></script>
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
